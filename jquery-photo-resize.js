@@ -1,18 +1,41 @@
-function imgresize()
-{
-	var contentHeight = $(window).height();
+/// <reference path="jquery-1.5.1.min.js" />
 
-	$('img').attr('height', contentHeight - 35);
-}
+/*
+* Adjust photo on browser window resize
+* 
+* @example: $('selector').photoResize();
+* 
+* @example:
+	$('selector').photoResize({
+		bottomSpacing:"Bottom Spacing adjustment"
+	});
+*/
 
-$(document).ready(function() {
-	
-	if (document.getElementById("photo"))
-	{
-		imgresize();
-	
-		$(window).bind('resize', function() {
-			imgresize();
+(function ($) {
+
+	$.fn.photoResize = function (options) {
+
+		var element	= $(this), 
+			defaults = {
+	            bottomSpacing: 10
+			};
+		
+		$(element).load(function () {
+			changePhotoHeight();
+
+			$(window).bind('resize', function () {
+				changePhotoHeight();
+			});
 		});
-	}
-});
+
+		options = $.extend(defaults, options);
+
+		function changePhotoHeight() {
+			var o = options, 
+				photoHeight = $(window).height();
+
+			$(element).attr('height', photoHeight - o.bottomSpacing);
+		}
+	};
+
+}(jQuery));
