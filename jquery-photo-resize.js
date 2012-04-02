@@ -54,27 +54,32 @@
         defaults = {
             bottomSpacing: 15,
             rightSpacing: 20,
-            unscaledHeight: -1,
-            unscaledWidth: -1,
+            // remember initial picture size (used as maximum size)
+            unscaledHeight: $(element).height(),
+            unscaledWidth: $(element).width(),
         };
-
+        options = $.extend(defaults, options);
+        
         $(element).load(function () {
-            init();
             changeDimensions();
-
-            $(window).bind('resize', function () {
-                changeDimensions();
-            });
+        });
+        // the load event is a bit tricky -- it seems to not fire if
+        // the element has been loaded very fast... i.e. from the browser's cache.
+        // Therefore we force dimension change even before any load event has
+        // been received:
+        changeDimensions();
+        $(window).bind('resize', function () {
+            changeDimensions();
         });
 
-        options = $.extend(defaults, options);
-
-        function init() {
-            // remember initial picture size (used as maximum size)
-            options.unscaledHeight = $(element).height();
-            options.unscaledWidth = $(element).width();
-        }
         function changeDimensions() {
+            // again, we might have to load the picture, yet...
+            if ( options.unscaledHeight == 0 ) {
+                options.unscaledHeight = $(element).height();
+                options.unscaledWidth = $(element).width();
+            }   
+            if ( options.unscaledHeight == 0 ) return;
+            
             var maxDisplayHeight = $(window).height() - $(element).offset().top - options.bottomSpacing;
             var maxDisplayWidth  = $(window).width() - $(element).offset().left - options.rightSpacing;
             var desiredHeight = maxDisplayHeight < options.unscaledHeight ? maxDisplayHeight : options.unscaledHeight;
